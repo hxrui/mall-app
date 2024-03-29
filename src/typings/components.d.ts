@@ -18,5 +18,11 @@ declare module '@vue/runtime-core' {
     HomeSearch: typeof import('./../pages/index/components/home-search.vue')['default']
     HomeSwiper: typeof import('./../pages/index/components/home-swiper.vue')['default']
     Iconify: typeof import('./../components/Iconify/index.vue')['default']
+    NutAvatar: typeof import('nutui-uniapp/components/avatar/avatar.vue')['default']
+    NutCategory: typeof import('nutui-uniapp/components/category/category.vue')['default']
+    NutCategoryPane: typeof import('nutui-uniapp/components/categorypane/categorypane.vue')['default']
+    NutGrid: typeof import('nutui-uniapp/components/grid/grid.vue')['default']
+    NutGridItem: typeof import('nutui-uniapp/components/griditem/griditem.vue')['default']
+    NutInputNumber: typeof import('nutui-uniapp/components/inputnumber/inputnumber.vue')['default']
   }
 }

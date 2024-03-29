@@ -1,27 +1,27 @@
 <template>
-    <view>
-        <swiper
-            class="swiper"
-            circular
-            indicator-active-color="#fff"
-            indicator-color="rgba(255,255,255,0.6)"
-            :indicator-dots="true"
-            :autoplay="true"
-            :interval="3000"
-            :duration="1000"
-        >
-            <swiper-item class="swiper-item">
-                <image mode="aspectFill" class="swiper-item-img" src="https://img.zcool.cn/community/018b2d599bf315a80121ad7b7e5bfd.jpg@2o.jpg"> </image>
-            </swiper-item>
-            <swiper-item class="swiper-item">
-                <image mode="aspectFill" class="swiper-item-img" src="https://img.zcool.cn/community/011fc458b9313da801219c7788e1e1.jpg@1280w_1l_2o_100sh.jpg">
-                </image>
-            </swiper-item>
-        </swiper>
-    </view>
+    <swiper
+        class="swiper"
+        circular
+        indicator-active-color="#fff"
+        indicator-color="rgba(255,255,255,0.6)"
+        :indicator-dots="true"
+        :autoplay="true"
+        :interval="3000"
+        :duration="1000"
+    >
+        <swiper-item v-for="item in advertBannerList" class="swiper-item">
+            <image mode="aspectFill" class="swiper-item-img" :src="item?.imageUrl"> </image>
+        </swiper-item>
+    </swiper>
 </template>
 
-<script setup></script>
+<script setup lang="ts">
+import { getAdvertBannerList } from '@/api/advert';
+import { useRequest } from 'alova';
+const { data: advertBannerList } = useRequest(getAdvertBannerList, {
+    initialData: [],
+});
+</script>
 
 <style lang="scss" scoped>
 .swiper {

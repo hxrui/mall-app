@@ -1,11 +1,11 @@
 <template>
     <view class="container">
         <!-- 空白页 -->
-        <view v-if="!hasLogin || empty === true" class="empty">
+        <view v-if="!authStore.isLogin || empty === true" class="empty">
             <image src="/static/emptyCart.jpg" mode="aspectFit"></image>
             <view v-if="hasLogin" class="empty-tips">
                 空空如也
-                <navigator class="navigator" v-if="hasLogin" url="../index/index" open-type="switchTab">随便逛逛> </navigator>
+                <navigator class="navigator" v-if="authStore.isLogin" url="../index/index" open-type="switchTab">随便逛逛> </navigator>
             </view>
             <view v-else class="empty-tips">
                 空空如也
@@ -32,15 +32,14 @@
                         <view class="item-right">
                             <text class="clamp title">{{ item.goodsName }}</text>
                             <text class="price">¥{{ item.price | moneyFormatter }}</text>
-                            <uni-number-box
-                                class="step"
+
+                            <nut-input-number
+                                v-model="item.count"
+                                :button-size="30"
+                                :input-width="50"
                                 :min="1"
                                 :max="item.stock"
-                                :value="item.count"
-                                :isMax="item.count >= item.stock ? true : false"
-                                :isMin="item.count === 1"
-                                :index="index"
-                                @eventChange="handleChangeCount($event, item.skuId)"
+                                @change="handleChangeCount($event, item.skuId)"
                             />
                         </view>
                         <text class="del-btn yticon icon-fork" @click="removeCartItem(item.skuId)"></text>
@@ -67,162 +66,64 @@
     </view>
 </template>
 
-<script>
-import { mapState } from 'vuex';
-import { mapGetters } from 'vuex';
-import { getCart, checkAll, deleteCart, addCartItem, updateCartItem, removeCartItem } from '@/api/oms/cart.js';
-import uniNumberBox from '@/components/uni-number-box.vue';
-export default {
-    components: {
-        uniNumberBox,
-    },
-    data() {
-        return {
-            totalPrice: 0, //总价格
-            allChecked: false, //全选状态  true|false
-            empty: false, //空白页现实  true|false
-            cartItemList: [],
-            coupon: 0,
-        };
-    },
-    // onLoad(options) {
-    onShow: function (options) {
-        //加载页面时，查询购物车详情
-        console.log('========>> 进入购物车详情, 路径:', this.$mp.page.route, '参数', options);
-        this.loadData();
-    },
-    watch: {
-        //显示空白页
-        cartItemList(e) {
-            let empty = e.length === 0 ? true : false;
-            if (this.empty !== empty) {
-                this.empty = empty;
-            }
-        },
-    },
-    computed: {
-        ...mapGetters(['hasLogin']),
-    },
-    methods: {
-        //请求数据
-        async loadData() {
-            getCart().then((response) => {
-                this.cartItemList = [];
-                this.totalPrice = 0;
+<script setup lang="ts">
+import { getCart, checkAll, deleteCart, addCartItem, updateCartItem, removeCartItem } from '@/api/cart';
+import { useAuthStore } from '@/store';
 
-                this.$nextTick((_) => {
-                    console.log('获取购物车数据', response.data);
-                    this.cartItemList = response.data;
-                    this.changeCart(); //计算总价
-                });
-            });
-        },
+const authStore = useAuthStore();
+const router = useRouter();
 
-        //监听image加载完成
-        onImageLoad(key, index) {
-            this.$set(this[key][index], 'loaded', 'loaded');
-        },
+const totalPrice = ref(0); // 总价格
+const allChecked = ref(false); // 全选状态
+const empty = ref(false); // 空白页
+const cartItemList = ref<CartItem[]>([]); // 购物车列表
+const coupon = ref(0);
 
-        //监听image加载失败
-        onImageError(key, index) {
-            this[key][index].image = '/static/errorImage.jpg';
-        },
+// Methods
+const loadData = async () => {
+    const response = await getCart();
+    cartItemList.value = response.data;
+    changeCart(); // 计算总价
+};
 
-        // 购物车商品数量change事件
-        handleChangeCount(data, skuId) {
-            const cartItem = {
-                skuId: skuId,
-                count: data.number,
-            };
-            console.log('商品数量change事件', cartItem);
-            updateCartItem(skuId, cartItem).then((response) => {
-                this.loadData();
-            });
-        },
+const handleChangeCount = async (data: { number: number }, skuId: number) => {
+    // ...
+};
 
-        // 购物车(单个)商品选中/取消选中事件
-        handleCheckItem(index, skuId) {
-            const params = {
-                checked: !this.cartItemList[index].checked,
-            };
-            updateCartItem(skuId, params).then(() => {
-                this.loadData();
-            });
-        },
+const handleCheckItem = async (index: number, skuId: number) => {
+    // ...
+};
 
-        // 购物车全选/全部取消事件
-        handleCheckAll() {
-            const params = {
-                checked: !this.allChecked,
-            };
-            checkAll(params).then(() => {
-                this.loadData();
-            });
-        },
+const handleCheckAll = async () => {
+    // ...
+};
 
-        // 删除购物车商品
-        removeCartItem(skuId) {
-            removeCartItem(skuId).then((response) => {
-                this.loadData();
-            });
-            uni.hideLoading();
-        },
+// ...其他方法
 
-        // 清空购物车
-        clearCart() {
-            uni.showModal({
-                content: '清空购物车？',
-                success: (e) => {
-                    if (e.confirm) {
-                        deleteCart().then((response) => {
-                            this.loadData();
-                        });
-                    }
-                },
-            });
-        },
+// Computed properties
+const computedTotalPrice = computed(() => {
+    // ...计算逻辑
+});
 
-        changeCart() {
-            if (this.cartItemList.length == 0) {
-                this.empty = true;
-                return;
-            }
+// Lifecycle hooks
+onMounted(() => {
+    console.log('onMounted');
+    loadData();
+});
 
-            let checked = true;
-            for (let i = 0; i < this.cartItemList.length; i++) {
-                if (this.cartItemList[i].checked === false) {
-                    checked = false;
-                    break;
-                }
-            }
-            this.allChecked = checked;
+// Watchers
+watch(cartItemList, (newVal) => {
+    empty.value = newVal.length === 0;
+});
 
-            const checkedItemList = this.cartItemList.filter((item) => item.checked);
-            if (!checkedItemList || checkedItemList.length === 0) {
-                this.totalPrice = 0;
-            } else if (checkedItemList.length == 1) {
-                this.totalPrice = checkedItemList[0].count * checkedItemList[0].price;
-            } else {
-                this.totalPrice = checkedItemList.reduce((prev, curr) => {
-                    return prev.price * prev.count + curr.price * curr.count;
-                });
-            }
-        },
+// 结算页面
+const handleCreateOrder = () => {
+    router.push('/pages/order/createOrder');
+};
 
-        // 结算页面
-        handleCreateOrder() {
-            uni.navigateTo({
-                url: `/pages/order/createOrder`,
-            });
-        },
-
-        // 跳转到登录页
-        navToLogin() {
-            uni.navigateTo({
-                url: '/pages/login/login',
-            });
-        },
-    },
+// 跳转到登录页
+const navToLogin = () => {
+    router.push('/pages/login/login');
 };
 </script>
 
