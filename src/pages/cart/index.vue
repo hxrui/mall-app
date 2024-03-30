@@ -20,16 +20,15 @@
 <script setup lang="ts">
 import { getCart } from '@/api/cart';
 import { useAuthStore } from '@/store';
-
 import { useRequest } from 'alova';
 
+const router = useRouter();
 const authStore = useAuthStore();
-
 const isLogin = authStore.isLogin;
 
-useRequest;
-
-const router = useRouter();
+const { data: cartItemList } = useRequest(getCart, {
+    initialData: [],
+});
 
 const totalPrice = ref(0); // 总价格
 const allChecked = ref(false); // 全选状态
