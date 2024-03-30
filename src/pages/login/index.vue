@@ -25,9 +25,7 @@
 
 <script setup lang="ts">
 import { Toast } from '@/utils/uniapi/prompt';
-import { HOME_PAGE } from '@/enums/routerEnum';
 import { useMemberStore, useAuthStore } from '@/store';
-const router = useRouter();
 const pageQuery = ref<Record<string, any> | undefined>(undefined);
 
 onLoad((query) => {

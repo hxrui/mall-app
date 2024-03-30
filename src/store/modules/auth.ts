@@ -6,7 +6,6 @@ import { LoginData } from '@/api/auth/types';
 
 export const useAuthStore = defineStore('auth', () => {
     const token = ref(getCache(TOKEN_KEY));
-    console.log('token', token.value);
 
     const isLogin = computed(() => !!token.value);
 

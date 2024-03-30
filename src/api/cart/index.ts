@@ -1,36 +1,36 @@
 import { request } from '@/utils/http';
 
-const ORDER_API_PREFIX = '/mall-oms/app-api/v1/carts';
+const CART_API_PREFIX = '/mall-oms/app-api/v1/carts';
 
 // 查询购物车
 export function getCart() {
-    return request.Get(ORDER_API_PREFIX);
+    return request.get(CART_API_PREFIX);
 }
 
 /**
- * 全选/全不选
+ * 全选/全不选购物车中的商品
  * @param {Object} params
  */
-export function checkAll(params) {
-    return request.Patch(ORDER_API_PREFIX + '/checkAll', params);
+export function checkAllItems(params) {
+    return request.patch(`${CART_API_PREFIX}/items/check-all`, params);
 }
 
 // 清空购物车
-export function deleteCart() {
-    return request.Delete(ORDER_API_PREFIX);
+export function clearCart() {
+    return request.delete(CART_API_PREFIX);
 }
 
-// 添加购物车
-export function addCartItem(skuId) {
-    return request.Post(ORDER_API_PREFIX + '/skuId/' + skuId);
+// 添加单个商品到购物车
+export function addItemToCart(skuId) {
+    return request.post(`${CART_API_PREFIX}/items`, { skuId });
 }
 
-// 更新购物车商品
+// 更新购物车中的单个商品
 export function updateCartItem(skuId, data) {
-    return request.Put(ORDER_API_PREFIX + '/skuId/' + skuId, data);
+    return request.put(`${CART_API_PREFIX}/items/${skuId}`, data);
 }
 
-// 批量删除购物车商品
-export function removeCartItem(skuId) {
-    return request.Delete(ORDER_API_PREFIX + '/skuId/' + skuId);
+// 从购物车中移除单个商品
+export function removeItemFromCart(skuId) {
+    return request.delete(`${CART_API_PREFIX}/items/${skuId}`);
 }

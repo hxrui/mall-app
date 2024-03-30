@@ -1,76 +1,34 @@
 <template>
     <view class="container">
-        <!-- 空白页 -->
-        <view v-if="!authStore.isLogin || empty === true" class="empty">
-            <image src="/static/emptyCart.jpg" mode="aspectFit"></image>
-            <view v-if="hasLogin" class="empty-tips">
-                空空如也
-                <navigator class="navigator" v-if="authStore.isLogin" url="../index/index" open-type="switchTab">随便逛逛> </navigator>
-            </view>
-            <view v-else class="empty-tips">
-                空空如也
-                <view class="navigator" @click="navToLogin">去登陆></view>
-            </view>
+        <!-- 登录 -->
+        <view v-if="isLogin">
+            <nut-empty image="empty" description="空空如也">
+                <div class="mt-2">
+                    <nut-button type="info" @click="goToHome">随便逛逛</nut-button>
+                </div>
+            </nut-empty>
         </view>
-        <view v-else>
-            <!-- 列表 -->
-            <view class="cart-list">
-                <block v-for="(item, index) in cartItemList" :key="item.skuId">
-                    <view class="cart-item" :class="{ 'b-b': index !== cartItemList.length - 1 }">
-                        <view class="image-wrapper">
-                            <image
-                                :src="item.picUrl"
-                                class="loaded"
-                                mode="aspectFill"
-                                lazy-load
-                                @load="onImageLoad('cartItemList', index)"
-                                @error="onImageError('cartItemList', index)"
-                            >
-                            </image>
-                            <view class="yticon icon-xuanzhong2 checkbox" :class="{ checked: item.checked }" @click="handleCheckItem(index, item.skuId)"></view>
-                        </view>
-                        <view class="item-right">
-                            <text class="clamp title">{{ item.goodsName }}</text>
-                            <text class="price">¥{{ item.price | moneyFormatter }}</text>
-
-                            <nut-input-number
-                                v-model="item.count"
-                                :button-size="30"
-                                :input-width="50"
-                                :min="1"
-                                :max="item.stock"
-                                @change="handleChangeCount($event, item.skuId)"
-                            />
-                        </view>
-                        <text class="del-btn yticon icon-fork" @click="removeCartItem(item.skuId)"></text>
-                    </view>
-                </block>
-            </view>
-            <!-- 底部菜单栏 -->
-            <view class="action-section">
-                <view class="checkbox">
-                    <image :src="allChecked ? '/static/selected.png' : '/static/select.png'" mode="aspectFit" @click="handleCheckAll()"></image>
-                    <view class="clear-btn" :class="{ show: allChecked }" @click="clearCart">清空</view>
-                </view>
-                <view class="total-box">
-                    <text class="price">¥{{ totalPrice | moneyFormatter }}</text>
-                    <text class="coupon">
-                        已优惠
-                        <text>{{ coupon | moneyFormatter }}</text>
-                        元
-                    </text>
-                </view>
-                <button type="primary" class="no-border confirm-btn" @click="handleCreateOrder">去结算</button>
-            </view>
-        </view>
+        <!-- 未登录 -->
+        <nut-empty v-else image="empty" description="空空如也">
+            <div style="margin-top: 10px">
+                <nut-button type="primary" @click="navToLogin">去登陆</nut-button>
+            </div>
+        </nut-empty>
     </view>
 </template>
 
 <script setup lang="ts">
-import { getCart, checkAll, deleteCart, addCartItem, updateCartItem, removeCartItem } from '@/api/cart';
+import { getCart } from '@/api/cart';
 import { useAuthStore } from '@/store';
 
+import { useRequest } from 'alova';
+
 const authStore = useAuthStore();
+
+const isLogin = authStore.isLogin;
+
+useRequest;
+
 const router = useRouter();
 
 const totalPrice = ref(0); // 总价格
@@ -116,52 +74,20 @@ watch(cartItemList, (newVal) => {
     empty.value = newVal.length === 0;
 });
 
-// 结算页面
-const handleCreateOrder = () => {
-    router.push('/pages/order/createOrder');
+const goToHome = () => {
+    uni.switchTab({
+        url: '/pages/index/index',
+    });
 };
 
-// 跳转到登录页
 const navToLogin = () => {
-    router.push('/pages/login/login');
+    router.push('/pages/login/index');
 };
 </script>
 
 <style lang="scss">
 .container {
-    padding-bottom: 134upx;
-
-    /* 空白页 */
-    .empty {
-        position: fixed;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100vh;
-        padding-bottom: 100upx;
-        display: flex;
-        justify-content: center;
-        flex-direction: column;
-        align-items: center;
-        background: #fff;
-
-        image {
-            width: 240upx;
-            height: 160upx;
-            margin-bottom: 30upx;
-        }
-
-        .empty-tips {
-            display: flex;
-            font-size: $font-sm + 2upx;
-            color: $font-color-disabled;
-
-            .navigator {
-                color: $uni-color-primary;
-                margin-left: 16upx;
-            }
-        }
-    }
+    padding-bottom: 150upx;
 }
 
 /* 购物车列表项 */
