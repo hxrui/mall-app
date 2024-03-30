@@ -14,6 +14,7 @@ export default {
         {
             'border-base': 'border border-gray-500_10',
             'flex-center': 'flex justify-center items-center',
+            'flex-between': 'flex justify-between items-center',
         },
     ],
     transformers: [

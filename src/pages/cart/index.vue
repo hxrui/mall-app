@@ -2,7 +2,27 @@
     <view class="container">
         <!-- 登录 -->
         <view v-if="isLogin">
-            <nut-empty image="empty" description="空空如也">
+            <view v-if="cartItemList.length > 0" class="cart-list">
+                <view v-for="(item, index) in cartItemList" :key="item.skuId" class="flex-center">
+                    <radio style="transform: scale(0.6)" checked="true" color="#fe5572" />
+                    <image style="width: 152upx; height: 152upx" :src="item.picUrl" mode="aspectFill"></image>
+                    <view class="flex-1">
+                        <view class="flex-between">
+                            <text class="text-lg text-dark">{{ item.spuName }}</text>
+                        </view>
+                        <view class="text-sm text-light">{{ item.skuName }}</view>
+                        <view class="flex-between">
+                            <view class="color-#ff0003"
+                                ><text class="font-12">¥</text>
+                                <text class="font-14">{{ item.price }}</text>
+                            </view>
+                            <nut-input-number v-model="item.count" />
+                        </view>
+                    </view>
+                </view>
+            </view>
+
+            <nut-empty v-else image="empty" description="空空如也">
                 <div class="mt-2">
                     <nut-button type="info" @click="goToHome">随便逛逛</nut-button>
                 </div>
@@ -21,6 +41,7 @@
 import { getCart } from '@/api/cart';
 import { useAuthStore } from '@/store';
 import { useRequest } from 'alova';
+import { Close } from '@nutui/icons-vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -33,15 +54,7 @@ const { data: cartItemList } = useRequest(getCart, {
 const totalPrice = ref(0); // 总价格
 const allChecked = ref(false); // 全选状态
 const empty = ref(false); // 空白页
-const cartItemList = ref<CartItem[]>([]); // 购物车列表
 const coupon = ref(0);
-
-// Methods
-const loadData = async () => {
-    const response = await getCart();
-    cartItemList.value = response.data;
-    changeCart(); // 计算总价
-};
 
 const handleChangeCount = async (data: { number: number }, skuId: number) => {
     // ...
@@ -60,12 +73,6 @@ const handleCheckAll = async () => {
 // Computed properties
 const computedTotalPrice = computed(() => {
     // ...计算逻辑
-});
-
-// Lifecycle hooks
-onMounted(() => {
-    console.log('onMounted');
-    loadData();
 });
 
 // Watchers
